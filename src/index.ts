@@ -1,40 +1,30 @@
-import { IOrganization, IPerson } from "./interfaces";
+// Person (is an Entity)
 
-class Entity {
+// Family (Groups People, is an Entity)
 
-    name:string;
+// Farm (is a Location, is a Business)
 
-}
+// Business (is an Entity)
+    // has owner
 
-class Organization extends Entity implements IOrganization {
+// Farm Animal (is an Animal, belongs to a Farm)
 
-    owners:Entity[]=[];
+// Pet (is an Animal, has a name, belongs to a person or family)
 
-    get ownerNames(){
-        return this.owners.map(owner => owner.name).join(",");
-    }
-    
-    addOwner( owner:Entity ){
-        this.owners.push( owner );
-    }
+// Horse (is a Farm Animal, has a name, is a Large Animal)
 
-}
+// Cow (is a Farm Animal, is a Large Animal)
 
-class Person extends Entity implements IPerson {
+// Dog
 
-    age:number;
+// Cat
 
-    constructor( public fname:string, public lname:string ){
-        super();
-        this.name = `${fname} ${lname}`;
-    }
+// Truck (is a Vehicle, can tow)
 
-}
+// Car (is a Vehicle, cannot tow)
 
-const acmeInc = new Organization();
-acmeInc.name = "ACME Inc.";
+// Horse Trailer (can hold 2 large animals)
 
-const john = new Person("John","Doe");
-acmeInc.addOwner(john);
+// Cattle Trailer (can hold 20 Large Animals)
 
-console.log( acmeInc.ownerNames );
+// Small Trailer (can hold 1 large animal)
