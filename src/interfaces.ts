@@ -11,9 +11,3 @@ export interface IOrganization {
     owners: INamed[]
 
 }
-
-export interface INamed {
-
-    name:string;
-
-}

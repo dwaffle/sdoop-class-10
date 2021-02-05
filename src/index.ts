@@ -1,30 +1,32 @@
-import { INamed, IOrganization, IPerson } from "./interfaces";
+import { IOrganization, IPerson } from "./interfaces";
 
-class Organization implements IOrganization {
+class Entity {
 
     name:string;
-    owners:INamed[]=[];
+
+}
+
+class Organization extends Entity implements IOrganization {
+
+    owners:Entity[]=[];
 
     get ownerNames(){
         return this.owners.map(owner => owner.name).join(",");
     }
     
-    addOwner( owner:INamed ){
+    addOwner( owner:Entity ){
         this.owners.push( owner );
     }
 
 }
 
-class Person implements IPerson {
+class Person extends Entity implements IPerson {
 
     age:number;
 
-    get name(){
-        return `${this.fname} ${this.lname}`;
-    }
-
     constructor( public fname:string, public lname:string ){
-
+        super();
+        this.name = `${fname} ${lname}`;
     }
 
 }
