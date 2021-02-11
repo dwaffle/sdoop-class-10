@@ -1,13 +1,16 @@
 // Person (is an Entity)
 
 // Family (Groups People, is an Entity)
+     //Class that holds a Person[]?
 
 // Farm (is a Location, is a Business)
+// is a Business with an Owner, has Farm Animals, Pets, a truck, A car, Horse Trailer.
 
 // Business (is an Entity)
     // has owner
 
 // Farm Animal (is an Animal, belongs to a Farm)
+    //Polymorphism?  Any animal that 
 
 // Pet (is an Animal, has a name, belongs to a person or family)
 
