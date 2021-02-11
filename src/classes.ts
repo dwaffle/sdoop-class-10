@@ -1,4 +1,5 @@
 import {IAnimal, IVehicle, ITrailer, ILocation, ITowingVehicle} from './interfaces'
+import {withLocation} from './mixins'
 
 class Entity{
     name:string
@@ -9,24 +10,36 @@ class Business extends Entity{
     owner:Person
 }
 
-class Person extends Entity{
-    firstName:string
-    lastName:string
-
+export class Person extends Entity{
+    private firstName:string
+    private lastName:string
+    private pets:SmallAnimal[]=[]
+    
     get fullName(){
         return this.firstName + " " + this.lastName
     }
+
+    constructor(firstName:string, lastName:string){
+        super()
+        this.firstName = firstName
+        this.lastName = lastName
+    }
 }
 
-class Family{
-    private family:Person[]
-    private pets:SmallAnimal[]
+//Family is defined as at least one person.
+export class Family{
+    private family:Person[]=[]
+    private pets:SmallAnimal[]=[]
     constructor(people:Person[]){
         this.family = people
     }
 
     addPerson(person:Person){
         this.family.push(person)
+    }
+
+    getPeople(){
+        return this.family
     }
 
     removePerson(person:Person){
@@ -67,7 +80,7 @@ export class Farm extends Business implements ILocation{
     }
 
     removeAnimal(animal:IAnimal){
-        this.animals.filter(a => a.name !== animal.name)
+        this.animals = this.animals.filter(a => a.name !== animal.name)
     }
     
 }
@@ -108,6 +121,12 @@ export class Cow extends LargeAnimal{
         this.isMilked=true;
     }
     isMilked:boolean
+}
+
+export class Sheep extends LargeAnimal{
+    baa(){
+        return "Baaaaaaa!"
+    }
 }
 
 export class Cat extends SmallAnimal{
@@ -159,27 +178,31 @@ export class Trailer implements ITrailer{
     animals:LargeAnimal[]=[]
     isTowed:boolean
     isFull(){
-        return this.capacity < this.animals.length
+        return this.capacity <= this.animals.length
+    }
+
+    count(){
+        return this.animals.length
     }
 
     loadAnimal(animal:LargeAnimal, farm:Farm){
         const animalsOnFarm = farm.getLargeAnimals()
         const animalToLoad = animalsOnFarm.filter(a => a.name === animal.name)
-        console.log(animalToLoad)
-        if(!(this.isFull()) && animalToLoad){
+        if(!this.isFull() && animalToLoad){
             this.animals.push(animal)
+            farm.removeAnimal(animal)
         } else {
-            return "This trailer is full, or that animal does not exist on that farm."
+            console.log("This trailer is full, or that animal does not exist on that farm.")
         }
     }
 
     unloadAnimal(animal:LargeAnimal, farm:Farm){
         const animalOnTrailer = this.animals.find(a => a.name === animal.name)
         if(animalOnTrailer){
-            this.animals.filter(a => a.name !== animal.name)
             farm.addLargeAnimal(animalOnTrailer)
+            this.animals = this.animals.filter(a => a.name !== animalOnTrailer.name)
         } else {
-            return "That animal isn't on this trailer."
+            console.log("That animal isn't on this trailer.")
         }
     }
 }
@@ -195,3 +218,5 @@ export class HorseTrailer extends Trailer{
 export class CattleTrailer extends Trailer{
     readonly capacity = 20
 }
+
+const FarmWithLocation = withLocation(Farm)
