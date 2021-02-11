@@ -1,7 +1,7 @@
 import {IAnimal, IVehicle, ITrailer, ILocation, ITowingVehicle} from './interfaces'
 
 class Entity{
-
+    name:string
 }
 
 class Business extends Entity{
@@ -9,7 +9,7 @@ class Business extends Entity{
     owner:Person
 }
 
-class Person{
+class Person extends Entity{
     firstName:string
     lastName:string
 
@@ -19,7 +19,8 @@ class Person{
 }
 
 class Family{
-    family:Person[]
+    private family:Person[]
+    private pets:SmallAnimal[]
     constructor(people:Person[]){
         this.family = people
     }
@@ -27,24 +28,48 @@ class Family{
     addPerson(person:Person){
         this.family.push(person)
     }
+
+    removePerson(person:Person){
+        this.family.filter(p => p.fullName != person.fullName)
+    }
+
+  
+   addPet(pet:SmallAnimal){
+       this.pets.push(pet)
+   }
+
+   findPet(pet:SmallAnimal){
+       return this.pets.filter(p => p.name === pet.name)
+   }
+
+   removePet(pet:SmallAnimal){
+       this.pets.filter(p => p.name !== pet.name)
+   }
 }
 
 //These farms are family owned businesses.
-class Farm extends Business implements ILocation{
+//Animals are large animals.  Pets are small animals.
+export class Farm extends Business implements ILocation{
     readonly location = "Farm"
-    private animals:IAnimal[]=[]
-
-    addAnimal(animal:IAnimal){
-        this.animals.push(animal)
-    }
-
-    getAnimals(){
-        return this.animals
-    }
-
+    private animals:LargeAnimal[]=[]
     owners:Family
     vehicles:IVehicle[]=[]
     trailers:ITrailer[]=[]
+    name:string
+
+    addLargeAnimal(animal:LargeAnimal){
+        
+        this.animals.push(animal)
+    }
+
+    getLargeAnimals(){
+        return this.animals
+    }
+
+    removeAnimal(animal:IAnimal){
+        this.animals.filter(a => a.name !== animal.name)
+    }
+    
 }
 
 //Business decision: all animals have a name to be identified by.  For cows and horses, this may be a brand.
@@ -64,18 +89,18 @@ export class LargeAnimal extends FarmAnimal implements IAnimal{
     readonly isLargeAnimal = true
 }
 
-class SmallAnimal extends FarmAnimal implements IAnimal{
+export class SmallAnimal extends Animal implements IAnimal{
     readonly isLargeAnimal = false
     owner:Person
 }
 
-class Horse extends LargeAnimal{
+export class Horse extends LargeAnimal{
     whinny(){
         return "Neigh!"
     }
 }
 
-class Cow extends LargeAnimal{
+export class Cow extends LargeAnimal{
     moo(){
         return "Moooooooooo"
     }
@@ -85,13 +110,13 @@ class Cow extends LargeAnimal{
     isMilked:boolean
 }
 
-class Cat extends SmallAnimal{
+export class Cat extends SmallAnimal{
     meow(){
         return "mew?"
     }
 }
 
-class Dog extends SmallAnimal{
+export class Dog extends SmallAnimal{
     bark(){
         return "Woof!"
     }
@@ -102,12 +127,12 @@ class Vehicle{
     wheels:number
 }
 
-class Car extends Vehicle{
+export class Car extends Vehicle{
     trunkCapacity:number
     noOfDoors:number = 4
 }
 
-class Truck extends Vehicle implements ITowingVehicle{
+export class Truck extends Vehicle implements ITowingVehicle{
     readonly canTow = true;
     hasTrailerAttached:boolean = false
     attachedTrailer:Trailer
@@ -130,39 +155,43 @@ class Truck extends Vehicle implements ITowingVehicle{
 }
 
 export class Trailer implements ITrailer{
-    capacity:number
-    animals:LargeAnimal[]
+    protected capacity:number
+    animals:LargeAnimal[]=[]
     isTowed:boolean
     isFull(){
-        return this.capacity >= this.animals.length
+        return this.capacity < this.animals.length
     }
 
-    loadAnimal(animal:LargeAnimal){
-
-        if(!this.isFull()){
+    loadAnimal(animal:LargeAnimal, farm:Farm){
+        const animalsOnFarm = farm.getLargeAnimals()
+        const animalToLoad = animalsOnFarm.filter(a => a.name === animal.name)
+        console.log(animalToLoad)
+        if(!(this.isFull()) && animalToLoad){
             this.animals.push(animal)
         } else {
-            return "This trailer is full."
+            return "This trailer is full, or that animal does not exist on that farm."
         }
     }
 
-    unloadAnimal(animal:LargeAnimal){
-        if(this.animals.find(a => a.name === animal.name)){
+    unloadAnimal(animal:LargeAnimal, farm:Farm){
+        const animalOnTrailer = this.animals.find(a => a.name === animal.name)
+        if(animalOnTrailer){
             this.animals.filter(a => a.name !== animal.name)
+            farm.addLargeAnimal(animalOnTrailer)
         } else {
             return "That animal isn't on this trailer."
         }
     }
 }
 
-class SmallTrailer extends Trailer{
+export class SmallTrailer extends Trailer{
    readonly capacity = 1
 }
 
-class HorseTrailer extends Trailer{
+export class HorseTrailer extends Trailer{
     readonly capacity = 2
 }
 
-class CattleTrailer extends Trailer{
+export class CattleTrailer extends Trailer{
     readonly capacity = 20
 }

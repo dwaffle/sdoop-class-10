@@ -17,10 +17,8 @@ export interface ITowingVehicle extends IVehicle{
 }
 
 export interface ITrailer{
-    capacity:number
     animals:LargeAnimal[]
     isTowed:boolean
-    isFull():boolean
 }
 
 export interface ILocation {
