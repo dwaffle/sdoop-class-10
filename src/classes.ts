@@ -13,7 +13,6 @@ class Business extends Entity{
 export class Person extends Entity{
     private firstName:string
     private lastName:string
-    private pets:SmallAnimal[]=[]
     
     get fullName(){
         return this.firstName + " " + this.lastName
@@ -43,7 +42,7 @@ export class Family{
     }
 
     removePerson(person:Person){
-        this.family.filter(p => p.fullName != person.fullName)
+        this.family = this.family.filter(p => p.fullName != person.fullName)
     }
 
   
@@ -52,18 +51,18 @@ export class Family{
    }
 
    findPet(pet:SmallAnimal){
-       return this.pets.filter(p => p.name === pet.name)
+       const animal = this.pets.find(p => p.name === pet.name)
+       return animal
    }
 
    removePet(pet:SmallAnimal){
-       this.pets.filter(p => p.name !== pet.name)
+       this.pets = this.pets.filter(p => p.name !== pet.name)
    }
 }
 
 //These farms are family owned businesses.
 //Animals are large animals.  Pets are small animals.
-export class Farm extends Business implements ILocation{
-    readonly location = "Farm"
+export class Farm extends Business{
     private animals:LargeAnimal[]=[]
     owners:Family
     vehicles:IVehicle[]=[]
@@ -105,6 +104,12 @@ export class LargeAnimal extends FarmAnimal implements IAnimal{
 export class SmallAnimal extends Animal implements IAnimal{
     readonly isLargeAnimal = false
     owner:Person
+    name:string
+    constructor(name:string, owner:Person){
+        super()
+        this.name = name
+        this.owner = owner
+    }
 }
 
 export class Horse extends LargeAnimal{
@@ -115,7 +120,7 @@ export class Horse extends LargeAnimal{
 
 export class Cow extends LargeAnimal{
     moo(){
-        return "Moooooooooo"
+        return "Moo"
     }
     milk(){
         this.isMilked=true;
@@ -147,13 +152,17 @@ class Vehicle{
 }
 
 export class Car extends Vehicle{
-    trunkCapacity:number
-    noOfDoors:number = 4
+    readonly wheels = 4
+    constructor(public trunkCapacity:number, public noOfDoors:number, public engine:string){
+        super()
+    }
+
 }
 
-export class Truck extends Vehicle implements ITowingVehicle{
+export class PickupTruck extends Vehicle implements ITowingVehicle{
     readonly canTow = true;
-    hasTrailerAttached:boolean = false
+    readonly wheels = 4
+    hasTrailerAttached = false
     attachedTrailer:Trailer
     attachTrailer(trailer:Trailer){
         if(this.hasTrailerAttached){
@@ -193,6 +202,7 @@ export class Trailer implements ITrailer{
             farm.removeAnimal(animal)
         } else {
             console.log("This trailer is full, or that animal does not exist on that farm.")
+            return "This trailer is full, or that animal does not exist on that farm."
         }
     }
 
@@ -203,6 +213,7 @@ export class Trailer implements ITrailer{
             this.animals = this.animals.filter(a => a.name !== animalOnTrailer.name)
         } else {
             console.log("That animal isn't on this trailer.")
+            return "That animal isn't on this trailer"
         }
     }
 }
@@ -219,4 +230,4 @@ export class CattleTrailer extends Trailer{
     readonly capacity = 20
 }
 
-const FarmWithLocation = withLocation(Farm)
+export const FarmWithLocation = withLocation(Farm)
